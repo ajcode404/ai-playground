@@ -3,7 +3,6 @@ package io.github.ajcode404
 import ai.koog.agents.core.dsl.builder.forwardTo
 import ai.koog.agents.core.dsl.builder.strategy
 import ai.koog.agents.core.dsl.extension.*
-import ai.koog.agents.core.environment.ReceivedToolResult
 import ai.koog.agents.core.tools.annotations.LLMDescription
 import ai.koog.agents.core.tools.annotations.Tool
 import ai.koog.agents.core.tools.reflect.ToolSet
@@ -65,11 +64,13 @@ object CalculatorStrategy {
     private const val MAX_TOKENS_THRESHOLD = 1000
 
     val strategy = strategy<String, String>("test") {
+
+        // node definition
         val nodeCallLLM by nodeLLMRequestMultiple()
         val nodeExecuteToolMultiple by nodeExecuteMultipleTools(parallelTools = true)
         val nodeSendToolResultMultiple by nodeLLMSendMultipleToolResults()
-        val nodeCompressHistory by nodeLLMCompressHistory<List<ReceivedToolResult>>()
 
+        // edges
         edge(nodeStart forwardTo nodeCallLLM)
 
         edge(
@@ -82,14 +83,6 @@ object CalculatorStrategy {
             (nodeCallLLM forwardTo nodeExecuteToolMultiple)
                     onMultipleToolCalls { true }
         )
-
-        edge(
-            (nodeExecuteToolMultiple forwardTo nodeCompressHistory)
-                    onCondition { llm.readSession { prompt.latestTokenUsage > MAX_TOKENS_THRESHOLD } }
-        )
-
-        edge(nodeCompressHistory forwardTo nodeSendToolResultMultiple)
-
         edge(
             (nodeExecuteToolMultiple forwardTo nodeSendToolResultMultiple)
                     onCondition { llm.readSession { prompt.latestTokenUsage <= MAX_TOKENS_THRESHOLD } }
