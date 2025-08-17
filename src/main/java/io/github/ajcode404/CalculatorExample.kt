@@ -56,6 +56,6 @@ fun main() {
     }
 
     runBlocking {
-        agent.run("Use provided tools to calculate (10 + 20) * (5 + 5) / (2 - 11). Please call all the tools at once")
+        agent.run("Use provided tools to calculate 10 + 20 - 5 Please call all the tools at once")
     }
 }
