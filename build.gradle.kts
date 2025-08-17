@@ -1,5 +1,5 @@
 plugins {
-    id("java")
+    kotlin("jvm") version "2.1.20"
 }
 
 group = "io.github.ajcode404"
@@ -17,4 +17,8 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+kotlin {
+    jvmToolchain(17)
 }
